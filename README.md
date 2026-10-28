@@ -1,6 +1,6 @@
 # Mini GPT from Scratch with KV Caching
 
-A small GPT-style decoder-only Transformer using Python and PyTorch. The goal of this project was to understand how a Transformer works internally, how it generates text one token at a time, and how Key-Value (KV) caching reduces repeated computation during generation.
+The goal of this project was to understand how a Transformer works internally, how it generates text one token at a time, and how Key-Value (KV) caching reduces repeated computation during generation.
 
 The model was trained on 5,000 short stories from the [TinyStories dataset](https://huggingface.co/datasets/roneneldan/TinyStories).
 
