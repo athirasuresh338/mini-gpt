@@ -109,10 +109,17 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--prompt",
-        default="Once upon a time",
+        "prompt",
         nargs="?",
-        const=""
+        default="Once upon a time",
+        help="Initial prompt text"
+    )
+
+    parser.add_argument(
+        "--prompt",
+        dest="flag_prompt",
+        default=None,
+        help="Initial prompt text (flag option)"
     )
 
     parser.add_argument("--max_new_tokens", type=int, default=40)
@@ -128,7 +135,11 @@ def parse_args():
         default="cuda" if torch.cuda.is_available() else "cpu"
     )
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.flag_prompt is not None:
+        args.prompt = args.flag_prompt
+
+    return args
 
 
 if __name__ == "__main__":
