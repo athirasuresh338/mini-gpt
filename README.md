@@ -20,24 +20,30 @@ The model is trained on a sample of 5,000 stories from the [TinyStories dataset]
 
 ## Model Architecture
 
-```mermaid
-flowchart TD
-    A["Input Token IDs"] --> B["Token + Positional Embeddings"]
-    B --> C["Transformer Block × 2"]
-    C --> D["LayerNorm"]
-    D --> E["Multi-Head Causal Self-Attention"]
-    E -.-> K["Per-Layer KV Cache"]
-    E --> F["Dropout"]
-    F --> G(("Add"))
-    C --> G
-    G --> H["LayerNorm"]
-    H --> I["Feed-Forward Network (GELU)"]
-    I --> J["Dropout"]
-    J --> L(("Add"))
-    G --> L
-    L --> M["Final LayerNorm"]
-    M --> N["Linear Output Head"]
-    N --> O["Next-Token Logits"]
+```text
+Input Token IDs
+      |
+      v
+Token + Positional Embeddings
+      |
+      v
+Transformer Block × 2
+├── LayerNorm (Pre-LN)
+├── Causal Multi-Head Self-Attention
+│   └── KV Cache
+├── Residual Connection
+├── LayerNorm (Pre-LN)
+├── Feed-Forward Network (GELU)
+└── Residual Connection
+      |
+      v
+Final LayerNorm
+      |
+      v
+Linear Output Head
+      |
+      v
+Next-Token Logits
 ```
 
 Each Transformer block utilizes Pre-LayerNorm, causal multi-head self-attention, a feed-forward network, and residual connections. The model contains 2 stacked blocks. 
