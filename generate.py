@@ -1,3 +1,5 @@
+"""Autoregressive text generation using MiniGPT with KV caching."""
+
 import argparse
 import random
 

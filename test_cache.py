@@ -2,11 +2,12 @@
 
 import torch
 import torch.nn as nn
-from model import MiniGPT, GPTConfig
+
+from model import GPTConfig, MiniGPT
 
 
+# Verify tensor output shapes and KV cache dimensions
 def test_output_shape():
-    """Verifies that a random input tensor produces expected logit and cache shapes."""
     config = GPTConfig(
         vocab_size=100,
         max_len=32,
@@ -37,8 +38,8 @@ def test_output_shape():
     print("[PASS] test_output_shape")
 
 
+# Verify single training step, gradients, and optimizer update
 def test_training_step():
-    """Verifies forward pass, loss calculation, backward pass, and weight update."""
     config = GPTConfig(
         vocab_size=100,
         max_len=32,
@@ -64,6 +65,7 @@ def test_training_step():
 
     loss.backward()
 
+    # Validate gradients
     for name, p in model.named_parameters():
         assert p.grad is not None, f"Gradient is None for {name}"
         assert not torch.isnan(p.grad).any(), f"Gradient contains NaN for {name}"
@@ -72,6 +74,7 @@ def test_training_step():
     orig_weight = model.token_embedding.weight.clone()
     optimizer.step()
 
+    # Ensure weights are updated
     assert not torch.equal(orig_weight, model.token_embedding.weight), (
         "Token embedding weights were not updated after optimizer step"
     )
@@ -79,11 +82,8 @@ def test_training_step():
     print("[PASS] test_training_step")
 
 
+# Verify exact numerical equivalence between cached and uncached generation
 def test_kv_cache(tolerance=1e-5):
-    """
-    Verifies that incremental generation with KV caching produces
-    identical logits to a full uncached forward pass within machine precision.
-    """
     torch.manual_seed(42)
     config = GPTConfig(
         vocab_size=100,
@@ -100,10 +100,10 @@ def test_kv_cache(tolerance=1e-5):
     tokens = torch.randint(0, config.vocab_size, (1, 10))
 
     with torch.no_grad():
-        # 1. Full uncached forward pass on all 10 tokens
+        # Full uncached forward pass on all tokens
         logits_uncached, _ = model(tokens)
 
-        # 2. Cached generation: prefill with 3 tokens, then 7 incremental steps
+        # Cached generation: prefill prompt, then incremental decoding
         prefill_len = 3
         prompt = tokens[:, :prefill_len]
         logits_prefill, cache = model(prompt)
@@ -117,7 +117,7 @@ def test_kv_cache(tolerance=1e-5):
 
         logits_cached = torch.cat(cached_logits, dim=1)
 
-        # 3. Verify numerical equivalence
+        # Check maximum absolute error against tolerance
         max_abs_diff = (logits_uncached - logits_cached).abs().max().item()
 
     print(f"Max absolute difference: {max_abs_diff:.8e} (tolerance: {tolerance:.1e})")
@@ -128,6 +128,7 @@ def test_kv_cache(tolerance=1e-5):
     print("[PASS] test_kv_cache (Mathematical Equivalence Verified)")
 
 
+# Run all verification tests
 if __name__ == "__main__":
     test_output_shape()
     test_training_step()

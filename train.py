@@ -1,3 +1,5 @@
+"""Training loop and evaluation pipeline for MiniGPT."""
+
 import argparse
 import os
 import random

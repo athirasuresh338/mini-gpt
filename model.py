@@ -1,3 +1,5 @@
+"""Decoder-only Transformer (MiniGPT) architecture with KV caching."""
+
 import math
 from dataclasses import dataclass
 
